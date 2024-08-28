@@ -13,22 +13,23 @@ public class Productor implements Runnable {
     public void run() {
         Random random = new Random();
 
-                    try {
-                        for (int i = 0; i < 1000; i++) {
-                            synchronized (cola) {
-                                while (cola.size() == 1000) {
-                                    cola.wait();
-                                }
-                                int num = random.nextInt(100) + 1;
-                                cola.add(num);
-                            }
-                        }
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-
-
+        try {
+            for (int i = 0; i < 1000; i++) {
+                synchronized (cola) {
+                    while (cola.size() == 1000) {
+                        cola.wait();
                     }
-
-
+                    int num = random.nextInt(100) + 1;
+                    cola.add(num);
+                    cola.notifyAll();
+                }
+            }
+            synchronized (cola) {
+                cola.add(-1);
+                cola.notifyAll();
+            }
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
